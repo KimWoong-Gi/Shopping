@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="QnaDAO">
+	<select id="listQna" parameterType="String" resultType="qna">
+		select * from qna
+		where id = #{id} order by qseq desc
+	</select>
+	
+	<select id="getQna" parameterType="int" resultType="qna">
+		select * from qna
+		where qseq=#{qseq}
+	</select>
+	
+	<insert id="insertQna">
+		insert into qna(qseq, subject, content, id)
+		values(qna_seq.nextval, #{subject}, #{content}, #{id})
+	</insert>
+	
+	<select id="listAllQna" resultType="qna">
+		select * from qna order by indate desc
+	</select>
+	
+	<update id="updateQna">
+		update qna set reply=#{reply}, rep='2' where qseq=#{qseq}
+	</update>
+</mapper>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="OrderDAO">
+	<!-- seq의 역할을 해준다. 하여튼 오케이 -->
+	<select id ="selectMaxOseq" resultType="int">
+		select NVL2(max(oseq), max(oseq)+1, 1) from orders <!-- 값이 없을 때 null 값이 들어갈 수 있으므로 요롷게 해준다. max(oseq)가 null값이 아니면 oseq의 최대값+1, null값이면 1을 넣어준다.-->
+	</select>
+	
+	<insert id ="insertOrder">
+		insert into orders (oseq, id) values (#{oseq}, #{id})
+	</insert>
+	
+	<insert id="insertOrderDetail">
+		insert into order_detail(odseq, oseq, pseq, quantity) values(order_detail_seq.nextval, #{oseq}, #{pseq}, #{quantity})
+	</insert>
+	
+	<!-- 사용자별 주문내역 조회 -->
+	<select id="listOrderById" resultType="order">
+		select * from order_view where id= #{id} and result like '%'||#{result}||'%' and oseq= #{oseq}
+	</select>
+	
+	<!-- 사용자별 주문벌호 조회 -->
+	<select id="selectSeqOrdering" parameterType="String" resultType="Integer">
+		select distinct oseq from order_view where id= #{id} and result= '1' order by oseq desc
+	</select>
+	
+	<!-- 주문 전체 조회 -->
+	<select id="listOrder" parameterType="String" resultType="order">
+		select * from order_view where mname like '%'||#{mname}||'%'
+		order by result, oseq desc
+	</select>
+	
+	<!-- 주문 상태 갱신 -->
+	<update id="updateOrderResult" parameterType="int">
+		update order_detail set result='2' where odseq=#{odseq}
+	</update>
+
+</mapper>

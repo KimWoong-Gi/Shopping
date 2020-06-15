@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ProductDAO">
+
+	<!-- 상품번호로 하나의 상품정보 얻어오기 -->
+	<select id="getProduct" resultType="product">
+		select * from product where pseq=#{pseq}
+	</select>
+
+	<!-- 신상품 목록 얻어오기 -->
+	<select id="getNewProductList" resultType="product">
+		select * from new_pro_view order by name
+	</select>
+	
+	<!-- 베스트 목록 얻어오기 -->
+	<select id="getBestProductList" resultType="product">
+		select * from best_pro_view	order by name
+	</select>
+	
+	<!-- 상품 종류별 상품 목록 얻어오기 -->
+	<select id="getProductListByKind" resultType="product">
+		select * from product where kind=#{kind} order by name
+	</select>
+	
+	<!-- ㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁ -->
+	<!-- 관리자 기능 -->
+	<!-- ㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁ -->
+	
+	<!-- 총 상품 목록 개수 조회 -->
+	<select id="countProductList" parameterType="String" resultType="int">
+		select count(*) from product where name like '%'||#{name}||'%'
+	</select>
+	
+	<!-- 페이지별 조회 pageNum=현재 페이지 번호, numPerPage=페이지당 출력항목 수 -->
+	<select id = "listWithPaging" parameterType="hashMap" resultType="product">
+	<![CDATA[
+		select pseq, regdate, name, price1, price2, useyn, bestyn
+		from
+			(select rownum rn, pseq, regdate, name, price1, price2, useyn, bestyn 
+			from product 
+			where rownum <= #{criteria.pageNum} * #{criteria.numPerPage} and name like '%'||#{name}||'%')
+		where rn > (#{criteria.pageNum}-1) * #{criteria.numPerPage} 
+	]]>
+	</select>
+			
+	<!-- 상품 목록 조회 -->
+	<select id="listProduct" resultType="product">
+		select pseq, regdate, name, price1, price2, useyn, bestyn
+		from product where name like '%'||#{name}||'%' order by pseq desc
+	</select>
+	
+	<!-- 상품 추가 -->
+	<insert id="insertProduct">
+		insert into product(pseq, kind, name, price1, price2, price3, content, image)
+		values(product_seq.nextval, #{kind}, #{name}, #{price1}, #{price2}, #{price3}, #{content}, #{image})
+	</insert>
+	
+	<!-- 상품 수정 -->
+	<update id="updateProduct">
+		update product set kind=#{kind}, useyn=#{useyn}, name=#{name}, price1=#{price1}, price2=#{price2},
+		price3=#{price3}, content=#{content}, image=#{image}, bestyn=#{bestyn} where pseq=#{pseq}
+	</update>
+	
+	<!-- 상품 목록별 판매 실적 조회 -->
+	<select id="getProductSales" resultMap="salesMap">
+		select pname, sum(quantity) as sales_count
+		from order_view
+		where result='2'
+		group by pname
+	</select>
+	
+	<resultMap type="com.green.biz.product.SalesQuantityVO" id="salesMap">
+		<result column="pname" property="pname"/>
+		<result column="sales_count" property="quantity"/>
+	</resultMap>
+	
+</mapper>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="WorkerDAO">
+	<select id="workerCheck" resultType="String">
+		select pwd from worker where id= #{id}
+	</select>
+	
+	<select id="getEmployee" resultType="employee">
+		select * from worker where id= #{id}
+	</select>
+</mapper>
